@@ -289,3 +289,37 @@ GOOGLE_APPS_SCRIPT_WEB_APP_URL
 - `.env2`에는 실제 키가 들어갈 수 있으므로 Git에 올리지 않는다.
 - `.gitignore`에 `.env2`를 추가했다.
 - Netlify 환경변수에는 `.env2`의 Name/Value를 하나씩 등록하면 된다.
+
+### Netlify 런타임 진단 API 추가
+
+문제:
+
+- 사용자가 Netlify에 환경변수를 넣었지만 계속 OpenAI `gpt-5-nano`로만 생성된다고 보고했다.
+- LM Studio 쪽에는 신호가 오지 않는다고 했다.
+
+가능성이 높은 원인:
+
+- Netlify가 최신 커밋으로 Redeploy되지 않았을 수 있다.
+- Netlify 환경변수에 `DEFAULT_AI_PROVIDER=openai`가 남아 있을 수 있다.
+- `LMSTUDIO_API_URL`, `LMSTUDIO_API_KEY`가 Netlify 함수 런타임에 전달되지 않았을 수 있다.
+- LM Studio 호출이 실패해서 OpenAI fallback으로 넘어갔을 수 있다.
+
+수정:
+
+- `/api/diagnostics`를 추가했다.
+- 로컬 Node 서버와 Netlify Functions 모두 같은 진단 정보를 반환한다.
+- 실제 키 값은 노출하지 않고, 값 존재 여부와 host, 모델, timeout, provider만 보여준다.
+
+확인 방법:
+
+```text
+https://배포주소/api/diagnostics
+```
+
+확인해야 할 값:
+
+- `routing.defaultProvider`가 `lmstudio`인지 확인
+- `env.defaultAiProvider`가 `openai`로 남아 있지 않은지 확인
+- `env.hasLmStudioApiUrl`이 `true`인지 확인
+- `env.hasLmStudioApiKey`가 `true`인지 확인
+- `lmStudio.apiHost`가 `lm.alluser.site`인지 확인

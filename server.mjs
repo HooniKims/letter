@@ -4,6 +4,7 @@ import { loadEnv, getAiRoutingConfig, getLmStudioConfig, getOpenAiConfig, getShe
 import { generateThankYouCard } from "./server/generator.mjs";
 import { appendLetterSubmission } from "./server/sheets.mjs";
 import { sendJson, serveStatic } from "./server/static.mjs";
+import { getRuntimeDiagnostics } from "./server/diagnostics.mjs";
 
 loadEnv();
 
@@ -28,6 +29,11 @@ const server = createServer(async (req, res) => {
       const input = await readJson(req);
       const result = await appendLetterSubmission(input, getSheetsConfig());
       sendJson(res, 200, result);
+      return;
+    }
+
+    if (req.method === "GET" && req.url === "/api/diagnostics") {
+      sendJson(res, 200, getRuntimeDiagnostics(LOCAL_ORIGIN));
       return;
     }
 
