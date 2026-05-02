@@ -323,3 +323,55 @@ https://배포주소/api/diagnostics
 - `env.hasLmStudioApiUrl`이 `true`인지 확인
 - `env.hasLmStudioApiKey`가 `true`인지 확인
 - `lmStudio.apiHost`가 `lm.alluser.site`인지 확인
+
+### LM Studio probe 및 fallback 사유 표시 추가
+
+문제:
+
+- `/api/diagnostics` 결과는 `defaultProvider=lmstudio`, `apiHost=lm.alluser.site`로 정상인데 실제 생성은 계속 OpenAI `gpt-5-nano`로 보인다고 했다.
+- 이 경우 라우팅 문제가 아니라 LM Studio 요청 실패 후 fallback 되었을 가능성이 높다.
+
+수정:
+
+- `/api/diagnostics?probe=lmstudio`를 추가했다.
+- 이 주소는 Netlify 함수 런타임에서 `LMSTUDIO_API_URL`의 `/v1/models`에 실제로 닿는지 확인한다.
+- 실제 키는 노출하지 않는다.
+- 생성 결과가 OpenAI fallback이면 화면 상태 메시지에 `fallback 사유`도 함께 표시한다.
+
+확인 방법:
+
+```text
+https://배포주소/api/diagnostics?probe=lmstudio
+```
+
+확인해야 할 값:
+
+- `probe.lmStudio.ok`가 `true`인지 확인
+- `probe.lmStudio.status`가 `200`인지 확인
+- `probe.lmStudio.configuredModelExists`가 `true`인지 확인
+- `ok=false`이면 `message`, `status`, `bodyPreview`를 보고 LM Studio 서버 접근 문제인지 인증 문제인지 확인한다.
+
+### 로컬 LM Studio 모델명 확인
+
+확인 결과:
+
+- 로컬 `.env`의 현재 모델명은 `google/gemma-4-e2b`이다.
+- `https://lm.alluser.site/v1/models`를 실제 생성과 같은 `Origin`, `Referer`, 인증 헤더로 호출하면 정상 응답한다.
+- 응답 모델 목록에 `google/gemma-4-e2b`, `google/gemma-4-e4b`, `gemma-4-26b-a4b-it`가 포함되어 있다.
+- 따라서 현재 서버 기준으로 e2b 모델명은 `gemma4:e2b`가 아니라 `google/gemma-4-e2b`가 맞다.
+
+수정:
+
+- diagnostics probe가 실제 생성 코드와 동일하게 `Origin`, `Referer` 헤더를 보내도록 맞췄다.
+- `/api/diagnostics?probe=lmstudio` 응답에 `configuredModel`, `configuredModelExists`, `modelIds`를 포함했다.
+- `/api/diagnostics`와 probe 응답에 LM Studio 호출 시 사용하는 `originHost`도 표시한다.
+- 환경변수에 모델명이 누락되어도 기본값이 `google/gemma-4-e2b`가 되도록 `server/env.mjs`의 fallback 기본값을 맞췄다.
+
+Netlify에서만 OpenAI fallback이 되는 경우 우선 확인할 것:
+
+- Netlify 배포 URL의 `/api/diagnostics?probe=lmstudio`를 직접 연다.
+- `routing.defaultProvider`가 `lmstudio`인지 확인한다.
+- `probe.lmStudio.ok`가 `true`인지 확인한다.
+- `probe.lmStudio.configuredModelExists`가 `true`인지 확인한다.
+- 위 값이 모두 정상인데도 생성 결과가 `gpt-5-nano`이면 화면에 표시되는 `fallback 사유`를 확인한다.
+- 로컬 `/api/diagnostics` 결과는 Netlify 함수 런타임이 아니므로 Netlify 문제 판단에는 배포 URL에서 확인해야 한다.

@@ -1,5 +1,5 @@
 import { loadEnv } from "../../server/env.mjs";
-import { getRuntimeDiagnostics } from "../../server/diagnostics.mjs";
+import { getRuntimeDiagnosticsWithProbe } from "../../server/diagnostics.mjs";
 
 loadEnv();
 
@@ -9,7 +9,10 @@ export async function handler(event) {
   }
 
   const origin = event.headers?.origin || process.env.URL || "https://localhost";
-  return json(200, getRuntimeDiagnostics(origin));
+  const probe = event.queryStringParameters?.probe || "";
+  const diagnostics = await getRuntimeDiagnosticsWithProbe(origin, { probe });
+
+  return json(200, diagnostics);
 }
 
 function json(statusCode, body) {

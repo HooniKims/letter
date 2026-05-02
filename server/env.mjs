@@ -28,7 +28,7 @@ export function getLmStudioConfig(origin = "http://localhost:5173") {
   return {
     apiUrl: process.env.LMSTUDIO_API_URL,
     apiKey: process.env.LMSTUDIO_API_KEY || "lm-studio",
-    model: process.env.LMSTUDIO_MODEL || process.env.LMSTUDIO_GEMMA_E2B_MODEL || process.env.LMSTUDIO_GEMMA_E4B_MODEL || "gemma4:e2b",
+    model: process.env.LMSTUDIO_MODEL || process.env.LMSTUDIO_GEMMA_E2B_MODEL || process.env.LMSTUDIO_GEMMA_E4B_MODEL || "google/gemma-4-e2b",
     origin: process.env.APP_ORIGIN || origin,
     timeoutMs: Number(process.env.LMSTUDIO_TIMEOUT_MS || 5000),
     temperature: Number(process.env.LMSTUDIO_TEMPERATURE || 0.92),

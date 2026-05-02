@@ -4,7 +4,7 @@ import { loadEnv, getAiRoutingConfig, getLmStudioConfig, getOpenAiConfig, getShe
 import { generateThankYouCard } from "./server/generator.mjs";
 import { appendLetterSubmission } from "./server/sheets.mjs";
 import { sendJson, serveStatic } from "./server/static.mjs";
-import { getRuntimeDiagnostics } from "./server/diagnostics.mjs";
+import { getRuntimeDiagnosticsWithProbe } from "./server/diagnostics.mjs";
 
 loadEnv();
 
@@ -32,8 +32,12 @@ const server = createServer(async (req, res) => {
       return;
     }
 
-    if (req.method === "GET" && req.url === "/api/diagnostics") {
-      sendJson(res, 200, getRuntimeDiagnostics(LOCAL_ORIGIN));
+    if (req.method === "GET" && req.url?.startsWith("/api/diagnostics")) {
+      const url = new URL(req.url, LOCAL_ORIGIN);
+      const diagnostics = await getRuntimeDiagnosticsWithProbe(LOCAL_ORIGIN, {
+        probe: url.searchParams.get("probe") || ""
+      });
+      sendJson(res, 200, diagnostics);
       return;
     }
 

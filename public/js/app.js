@@ -31,7 +31,8 @@ document.querySelector("[data-generate]").addEventListener("click", async () => 
     const result = await generateCard(payload);
     setGenerationLoading(false);
     setResult(result.text);
-    setStatus(`${formatProviderName(result.provider)} ${result.model}로 감사 카드가 생성되었습니다.`, "success");
+    const fallbackText = result.fallbackReason ? ` fallback 사유: ${result.fallbackReason}` : "";
+    setStatus(`${formatProviderName(result.provider)} ${result.model}로 감사 카드가 생성되었습니다.${fallbackText}`, "success");
   } catch (error) {
     setGenerationLoading(false);
     const message = error instanceof Error ? error.message : "감사 카드 생성에 실패했습니다.";
