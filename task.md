@@ -261,3 +261,31 @@ https://github.com/HooniKims/letter.git
 - `server/cardPrompt.mjs`에 받침 여부를 판단하는 `hasFinalConsonant()`를 추가했다.
 - 역할 표현 뒤 조사를 `라` 또는 `이라`로 자동 선택하는 `withRoleParticle()`을 추가했다.
 - 예: `다정한 사랑 알람이라`, `밝은 에너지 버튼이라`, `마음 충전기라`
+
+### Netlify 최소 환경변수 파일 생성
+
+요청:
+
+- LM Studio를 우선 사용하고, 실패 시 OpenAI fallback을 사용하는 최소 환경변수 묶음을 `.env2`로 만든다.
+- 실제 값은 기존 `.env`에서 필요한 항목만 복사한다.
+
+`.env2`에 포함한 항목:
+
+```text
+DEFAULT_AI_PROVIDER
+LMSTUDIO_API_URL
+LMSTUDIO_API_KEY
+LMSTUDIO_GEMMA_E2B_MODEL
+LMSTUDIO_TIMEOUT_MS
+LMSTUDIO_ENABLE_THINKING
+LMSTUDIO_MAX_TOKENS
+OPENAI_API_KEY
+OPENAI_FALLBACK_MODEL
+GOOGLE_APPS_SCRIPT_WEB_APP_URL
+```
+
+주의:
+
+- `.env2`에는 실제 키가 들어갈 수 있으므로 Git에 올리지 않는다.
+- `.gitignore`에 `.env2`를 추가했다.
+- Netlify 환경변수에는 `.env2`의 Name/Value를 하나씩 등록하면 된다.
