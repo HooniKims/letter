@@ -489,3 +489,29 @@ GOOGLE_SHEETS_RANGE
 - `NEXT_PUBLIC_LOCAL_LLM_API_KEY`는 브라우저에서 직접 쓰는 값이므로 공개 전제의 키로 취급해야 한다.
 - 이전에 대화에 노출된 API key는 교체하는 것이 안전하다.
 - Netlify 환경변수 삭제/수정 뒤에는 반드시 Redeploy 해야 한다.
+
+### `.env.example2` 생성
+
+요청:
+
+- Netlify에 남길 환경변수만 실제 값까지 정리한 파일을 만든다.
+
+처리:
+
+- 기존 `.env`에서 필요한 값만 읽어 `.env.example2`를 생성했다.
+- `NEXT_PUBLIC_LOCAL_LLM_API_KEY`는 기존 `.env`의 `LMSTUDIO_API_KEY` 값을 옮겨 담았다.
+- `.env.example2`는 실제 키값이 들어가므로 Git에 올리지 않는다.
+- 현재 `.gitignore`의 `.env.*` 규칙에 따라 `.env.example2`는 Git 무시 대상임을 확인했다.
+
+포함된 항목:
+
+```text
+DEFAULT_AI_PROVIDER
+LMSTUDIO_API_URL
+NEXT_PUBLIC_LOCAL_LLM_API_KEY
+LMSTUDIO_GEMMA_E2B_MODEL
+LMSTUDIO_MAX_TOKENS
+OPENAI_API_KEY
+OPENAI_FALLBACK_MODEL
+GOOGLE_APPS_SCRIPT_WEB_APP_URL
+```
