@@ -36,13 +36,13 @@ OPENAI_FALLBACK_MODEL
 GOOGLE_APPS_SCRIPT_WEB_APP_URL
 ```
 
-`LMSTUDIO_API_URL`이 등록되어 있으면 Netlify에서도 LM Studio를 우선 사용합니다. LM Studio가 실패하면 OpenAI `gpt-5-nano` fallback을 사용합니다.
+로컬과 Netlify 모두 기본 생성 순서는 같습니다. 먼저 LM Studio를 시도하고, LM Studio 요청이 실패하면 OpenAI `gpt-5-nano` fallback을 사용합니다.
 
 ### Netlify 필수 환경변수
 
 | 이름 | 값 |
 | --- | --- |
-| `DEFAULT_AI_PROVIDER` | `lmstudio` |
+| `DEFAULT_AI_PROVIDER` | `lmstudio` 또는 비워둠 |
 | `LMSTUDIO_API_URL` | 기존 `.env`의 LM Studio API URL. 단, Netlify에서 접근 가능한 외부 주소여야 함 |
 | `LMSTUDIO_API_KEY` | 기존 `.env`의 LM Studio API 키 |
 | `LMSTUDIO_GEMMA_E2B_MODEL` | `google/gemma-4-e2b` |
