@@ -1,8 +1,10 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 export function loadEnv(filePath = ".env") {
   const absolutePath = resolve(filePath);
+  if (!existsSync(absolutePath)) return;
+
   const content = readFileSync(absolutePath, "utf8");
 
   for (const rawLine of content.split(/\r?\n/)) {
@@ -47,7 +49,8 @@ export function getOpenAiConfig() {
 }
 
 export function getAiRoutingConfig() {
-  const provider = String(process.env.DEFAULT_AI_PROVIDER || "lmstudio").trim().toLowerCase();
+  const fallbackProvider = process.env.NETLIFY ? "openai" : "lmstudio";
+  const provider = String(process.env.DEFAULT_AI_PROVIDER || fallbackProvider).trim().toLowerCase();
 
   return {
     defaultProvider: provider === "openai" ? "openai" : "lmstudio"
