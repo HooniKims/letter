@@ -16,3 +16,8 @@
   from = "/api/diagnostics"
   to = "/.netlify/functions/diagnostics"
   status = 200
+
+[[redirects]]
+  from = "/api/client-config"
+  to = "/.netlify/functions/client-config"
+  status = 200

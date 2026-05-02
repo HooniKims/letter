@@ -82,6 +82,6 @@ document.querySelector("[data-submit]").addEventListener("click", async () => {
 
 function formatProviderName(provider) {
   if (provider === "openai") return "OpenAI";
-  if (provider === "lmstudio") return "LM Studio";
+  if (provider === "lmstudio" || provider === "lmstudio-browser") return "LM Studio";
   return "AI";
 }

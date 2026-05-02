@@ -11,8 +11,11 @@ export async function handler(event) {
   try {
     const input = parseBody(event.body);
     const origin = event.headers?.origin || process.env.URL || "https://localhost";
+    const routing = event.queryStringParameters?.provider === "openai"
+      ? { defaultProvider: "openai" }
+      : getAiRoutingConfig();
     const result = await generateThankYouCard(input, {
-      routing: getAiRoutingConfig(),
+      routing,
       lmStudio: getLmStudioConfig(origin),
       openAi: getOpenAiConfig()
     });

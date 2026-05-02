@@ -417,3 +417,75 @@ Nginx Proxy Manager 설정 관련 판단:
 
 - probe 자체 timeout이 먼저 발생해 원인을 가리는 문제를 줄이기 위해 probe timeout을 `LMSTUDIO_TIMEOUT_MS + 5000ms`, 최소 `20000ms`로 늘렸다.
 - probe 응답에 `targetHost`, `timeoutMs`도 표시되도록 했다.
+
+### 브라우저 직접 LM Studio 호출 방식 추가
+
+참고한 정상 동작 구조:
+
+- 다른 프로젝트는 Netlify Function이나 서버 API route가 아니라 브라우저에서 `https://lm.alluser.site/v1/chat/completions`를 직접 호출한다.
+- 브라우저 직접 호출은 `Origin`, `Referer`가 자동으로 붙기 때문에 `lm.alluser.site`의 CORS/Origin 제한을 통과한다.
+- 인증은 `Authorization`이 아니라 `X-API-Key`를 사용한다.
+- 실제 요청 모델명은 `google/gemma-4-e2b`이다.
+
+수정:
+
+- `server/clientConfig.mjs`를 추가해 브라우저가 사용할 LM Studio endpoint, model, key 설정을 제공한다.
+- `netlify/functions/client-config.mjs`와 `/api/client-config` redirect를 추가했다.
+- `public/js/clientLmStudio.js`를 추가해 브라우저에서 LM Studio에 직접 POST한다.
+- `public/js/letterPrompt.js`를 추가해 프론트 직접 호출용 카드 프롬프트와 응답 정규화를 담당한다.
+- `public/js/api.js`의 생성 흐름을 `브라우저 LM Studio 직접 호출 -> 실패 시 기존 /api/generate fallback` 순서로 변경했다.
+- 브라우저 직접 호출 body에는 `stream:false`, `reasoning_effort:"none"`, `enable_thinking:false`를 넣는다.
+- `X-API-Key`만 보내고 `Authorization`은 보내지 않는다.
+
+환경변수:
+
+- Netlify에는 `NEXT_PUBLIC_LOCAL_LLM_API_KEY`를 등록한다.
+- 브라우저 직접 호출용 공개 키만 사용하므로 `LMSTUDIO_API_KEY`는 Netlify에서 삭제해도 된다.
+- 이 앱은 빌드 과정이 없는 정적 앱이므로 `NEXT_PUBLIC_*` 값이 자동으로 JS에 주입되지 않는다. 대신 `/api/client-config`가 공개 설정으로 내려준다.
+- 브라우저 LM Studio 직접 호출이 실패하면 `/api/generate?provider=openai`로 넘어가 OpenAI만 호출한다. Netlify 서버에서 다시 LM Studio timeout을 기다리지 않도록 했다.
+
+검증:
+
+- `node --test tests/client-lmstudio.test.mjs` 통과
+- 브라우저와 같은 `Origin`, `Referer`를 붙인 직접 호출에서 `provider=lmstudio-browser`, `model=google/gemma-4-e2b`로 생성 확인
+- LM Studio 서버가 모델을 내린 순간에는 `400 Model unloaded.`가 올 수 있으며, 이 경우 앱은 기존 fallback 경로로 넘어간다.
+
+### Netlify 환경변수 정리
+
+현재 브라우저 직접 LM Studio 호출 구조에서 Netlify에 남길 항목:
+
+```text
+DEFAULT_AI_PROVIDER=lmstudio
+LMSTUDIO_API_URL=https://lm.alluser.site
+NEXT_PUBLIC_LOCAL_LLM_API_KEY
+LMSTUDIO_GEMMA_E2B_MODEL=google/gemma-4-e2b
+LMSTUDIO_MAX_TOKENS=700
+OPENAI_API_KEY
+OPENAI_FALLBACK_MODEL=gpt-5-nano
+GOOGLE_APPS_SCRIPT_WEB_APP_URL
+```
+
+삭제해도 되는 항목:
+
+```text
+LMSTUDIO_API_KEY
+LOCAL_LLM_API_KEY
+LMSTUDIO_GEMMA_E4B_MODEL
+LMSTUDIO_GEMMA_26B_MODEL
+LMSTUDIO_TIMEOUT_MS
+LMSTUDIO_ENABLE_THINKING
+LMSTUDIO_TEMPERATURE
+LMSTUDIO_TOP_P
+LMSTUDIO_PRESENCE_PENALTY
+LMSTUDIO_FREQUENCY_PENALTY
+OPENAI_MODEL
+GOOGLE_SHEETS_URL
+GOOGLE_SHEETS_SPREADSHEET_ID
+GOOGLE_SHEETS_RANGE
+```
+
+주의:
+
+- `NEXT_PUBLIC_LOCAL_LLM_API_KEY`는 브라우저에서 직접 쓰는 값이므로 공개 전제의 키로 취급해야 한다.
+- 이전에 대화에 노출된 API key는 교체하는 것이 안전하다.
+- Netlify 환경변수 삭제/수정 뒤에는 반드시 Redeploy 해야 한다.

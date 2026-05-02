@@ -5,6 +5,7 @@ import { generateThankYouCard } from "./server/generator.mjs";
 import { appendLetterSubmission } from "./server/sheets.mjs";
 import { sendJson, serveStatic } from "./server/static.mjs";
 import { getRuntimeDiagnosticsWithProbe } from "./server/diagnostics.mjs";
+import { getClientAiConfig } from "./server/clientConfig.mjs";
 
 loadEnv();
 
@@ -14,10 +15,14 @@ const LOCAL_ORIGIN = `http://localhost:${PORT}`;
 
 const server = createServer(async (req, res) => {
   try {
-    if (req.method === "POST" && req.url === "/api/generate") {
+    if (req.method === "POST" && req.url?.startsWith("/api/generate")) {
+      const url = new URL(req.url, LOCAL_ORIGIN);
       const input = await readJson(req);
+      const routing = url.searchParams.get("provider") === "openai"
+        ? { defaultProvider: "openai" }
+        : getAiRoutingConfig();
       const result = await generateThankYouCard(input, {
-        routing: getAiRoutingConfig(),
+        routing,
         lmStudio: getLmStudioConfig(LOCAL_ORIGIN),
         openAi: getOpenAiConfig()
       });
@@ -38,6 +43,11 @@ const server = createServer(async (req, res) => {
         probe: url.searchParams.get("probe") || ""
       });
       sendJson(res, 200, diagnostics);
+      return;
+    }
+
+    if (req.method === "GET" && req.url === "/api/client-config") {
+      sendJson(res, 200, getClientAiConfig());
       return;
     }
 
