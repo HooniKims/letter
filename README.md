@@ -57,7 +57,7 @@ GOOGLE_APPS_SCRIPT_WEB_APP_URL
 | 이름 | 값 |
 | --- | --- |
 | `GOOGLE_SHEETS_SPREADSHEET_ID` | Apps Script만 쓰면 없어도 됨 |
-| `GOOGLE_SHEETS_RANGE` | 필요하면 `A:C` |
+| `GOOGLE_SHEETS_RANGE` | 필요하면 `A:D` |
 
 ### 로컬 실행용 `.env`
 

@@ -29,8 +29,16 @@
             <span aria-hidden="true">01</span>
             <h2>Step 0: 누가 보내는 편지인가요?</h2>
           </div>
-          <label class="field-label" for="student-info">학번과 이름</label>
-          <input id="student-info" name="studentInfo" type="text" placeholder="예: 1100 홍길동" autocomplete="off" />
+          <div class="student-row">
+            <div class="field-group">
+              <label class="field-label" for="student-id">학번</label>
+              <input id="student-id" name="studentId" type="text" placeholder="예: 1100" inputmode="numeric" autocomplete="off" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="student-name">이름</label>
+              <input id="student-name" name="studentName" type="text" placeholder="예: 홍길동" autocomplete="off" />
+            </div>
+          </div>
         </div>
 
         <div class="step-block">

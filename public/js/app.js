@@ -9,15 +9,21 @@ document.querySelector("[data-reset]").addEventListener("click", () => {
   window.location.reload();
 });
 
-document.querySelector("#student-info").addEventListener("input", refreshSubmitAvailability);
+document.querySelector("#student-id").addEventListener("input", refreshSubmitAvailability);
+document.querySelector("#student-name").addEventListener("input", refreshSubmitAvailability);
 document.querySelector("#ethics-accepted").addEventListener("change", refreshSubmitAvailability);
 document.querySelector("#result").addEventListener("input", refreshSubmitAvailability);
 
 document.querySelector("[data-generate]").addEventListener("click", async () => {
   const payload = readFormPayload();
-  if (!payload.studentInfo) {
-    setStatus("학번과 이름을 먼저 입력해 주세요.", "error");
-    document.querySelector("#student-info").focus();
+  if (!payload.studentId) {
+    setStatus("학번을 먼저 입력해 주세요.", "error");
+    document.querySelector("#student-id").focus();
+    return;
+  }
+  if (!payload.studentName) {
+    setStatus("이름을 먼저 입력해 주세요.", "error");
+    document.querySelector("#student-name").focus();
     return;
   }
 
@@ -45,9 +51,14 @@ document.querySelector("[data-generate]").addEventListener("click", async () => 
 
 document.querySelector("[data-submit]").addEventListener("click", async () => {
   const payload = readSubmitPayload();
-  if (!payload.studentInfo) {
-    setStatus("학번과 이름을 먼저 입력해 주세요.", "error");
-    document.querySelector("#student-info").focus();
+  if (!payload.studentId) {
+    setStatus("학번을 먼저 입력해 주세요.", "error");
+    document.querySelector("#student-id").focus();
+    return;
+  }
+  if (!payload.studentName) {
+    setStatus("이름을 먼저 입력해 주세요.", "error");
+    document.querySelector("#student-name").focus();
     return;
   }
 

@@ -17,11 +17,14 @@ export function renderChoiceGroups() {
 }
 
 export function readFormPayload() {
-  const studentInfo = document.querySelector("#student-info").value.trim();
+  const studentId = document.querySelector("#student-id").value.trim();
+  const studentName = document.querySelector("#student-name").value.trim();
   const { selections } = getState();
 
   return {
-    studentInfo,
+    studentId,
+    studentName,
+    studentInfo: formatStudentInfo(studentId, studentName),
     personality: selections.personality,
     style: selections.style,
     message: selections.message
@@ -30,9 +33,13 @@ export function readFormPayload() {
 
 export function readSubmitPayload() {
   const { selections } = getState();
+  const studentId = document.querySelector("#student-id").value.trim();
+  const studentName = document.querySelector("#student-name").value.trim();
 
   return {
-    studentInfo: document.querySelector("#student-info").value.trim(),
+    studentId,
+    studentName,
+    studentInfo: formatStudentInfo(studentId, studentName),
     letterText: document.querySelector("#result").value.trim(),
     ethicsAccepted: document.querySelector("#ethics-accepted").checked,
     personality: selections.personality,
@@ -86,12 +93,17 @@ export function refreshSubmitAvailability() {
   if (!button) return;
 
   const { selections, isGenerating } = getState();
-  const hasStudentInfo = Boolean(document.querySelector("#student-info")?.value.trim());
+  const hasStudentId = Boolean(document.querySelector("#student-id")?.value.trim());
+  const hasStudentName = Boolean(document.querySelector("#student-name")?.value.trim());
   const hasLetterText = Boolean(document.querySelector("#result")?.value.trim());
   const hasEthicsAccepted = Boolean(document.querySelector("#ethics-accepted")?.checked);
   const hasSteps = Boolean(selections.personality && selections.style && selections.message);
 
-  button.disabled = submitInProgress || isGenerating || !(hasStudentInfo && hasSteps && hasLetterText && hasEthicsAccepted);
+  button.disabled = submitInProgress || isGenerating || !(hasStudentId && hasStudentName && hasSteps && hasLetterText && hasEthicsAccepted);
+}
+
+function formatStudentInfo(studentId, studentName) {
+  return [studentId, studentName].filter(Boolean).join(" ").trim();
 }
 
 function setInteractionLock(isLocked) {

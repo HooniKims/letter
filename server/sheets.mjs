@@ -4,10 +4,11 @@ const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
 export async function appendLetterSubmission(input, config) {
-  validateSubmissionInput(input);
+  const student = validateSubmissionInput(input);
 
   const row = [
-    input.studentInfo.trim(),
+    student.id,
+    student.name,
     input.letterText.trim(),
     formatKoreanTimestamp(new Date())
   ];
@@ -26,8 +27,12 @@ export async function appendLetterSubmission(input, config) {
 }
 
 function validateSubmissionInput(input) {
-  if (typeof input?.studentInfo !== "string" || !input.studentInfo.trim()) {
-    throw new Error("학번과 이름이 필요합니다.");
+  const student = normalizeStudentFields(input);
+  if (!student.id) {
+    throw new Error("학번이 필요합니다.");
+  }
+  if (!student.name) {
+    throw new Error("이름이 필요합니다.");
   }
   for (const key of ["personality", "style", "message"]) {
     if (typeof input?.[key] !== "string" || !input[key].trim()) {
@@ -40,6 +45,24 @@ function validateSubmissionInput(input) {
   if (!input?.ethicsAccepted) {
     throw new Error("생성형 AI 윤리 확인에 동의해야 저장할 수 있습니다.");
   }
+  return student;
+}
+
+function normalizeStudentFields(input) {
+  const studentId = typeof input?.studentId === "string" ? input.studentId.trim() : "";
+  const studentName = typeof input?.studentName === "string" ? input.studentName.trim() : "";
+  if (studentId || studentName) {
+    return { id: studentId, name: studentName };
+  }
+
+  const studentInfo = typeof input?.studentInfo === "string" ? input.studentInfo.trim() : "";
+  if (!studentInfo) return { id: "", name: "" };
+
+  const [legacyId = "", ...legacyNameParts] = studentInfo.split(/\s+/);
+  return {
+    id: legacyId.trim(),
+    name: legacyNameParts.join(" ").trim()
+  };
 }
 
 async function appendViaAppsScript(row, appsScriptUrl) {
@@ -47,9 +70,10 @@ async function appendViaAppsScript(row, appsScriptUrl) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      studentInfo: row[0],
-      letterText: row[1],
-      createdAt: row[2]
+      studentId: row[0],
+      studentName: row[1],
+      letterText: row[2],
+      createdAt: row[3]
     })
   });
 
@@ -65,7 +89,7 @@ async function appendViaAppsScript(row, appsScriptUrl) {
     throw new Error(data.error || `Apps Script 저장 실패 (${response.status})`);
   }
 
-  return { saved: true, createdAt: row[2], backend: "apps-script" };
+  return { saved: true, createdAt: row[3], backend: "apps-script" };
 }
 
 function extractAppsScriptError(text) {
@@ -98,7 +122,7 @@ async function appendViaSheetsApi(row, config) {
     throw new Error(`Google Sheets 저장 실패 (${response.status}) ${detail}`.trim());
   }
 
-  return { saved: true, createdAt: row[2], backend: "sheets-api" };
+  return { saved: true, createdAt: row[3], backend: "sheets-api" };
 }
 
 async function getAccessToken(config) {

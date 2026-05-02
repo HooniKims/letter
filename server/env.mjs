@@ -64,7 +64,7 @@ export function getSheetsConfig() {
   return {
     appsScriptUrl: process.env.GOOGLE_APPS_SCRIPT_WEB_APP_URL,
     spreadsheetId,
-    range: process.env.GOOGLE_SHEETS_RANGE || "A:C",
+    range: process.env.GOOGLE_SHEETS_RANGE || "A:D",
     serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     privateKey: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n")
   };
