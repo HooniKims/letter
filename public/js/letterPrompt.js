@@ -27,11 +27,16 @@ const MESSAGE_GUIDES = {
   "부모님의 삶 응원": "부모님의 하루와 꿈을 응원하는 마음"
 };
 
+const ADDRESS_CANDIDATES = ["엄마 아빠,", "엄마 아빠，", "부모님,", "부모님，"];
+const QUOTE_CHARS = new Set(["'", "\"", "`", "‘", "’", "“", "”"]);
+const INSTRUCTION_PATTERN = /(첫\s*문장|두\s*문장|문장은|존댓말|규칙|출력|시작|끝낸|또는|사용|확인)/;
+const CARD_INTENT_PATTERN = /(감사|고마|사랑|키워|길러|은혜|효도|건강|평안|행복|추억|응원|쉬|웃|챙겨|마음)/;
+
 export const CLIENT_CARD_SYSTEM_PROMPT = [
   "너는 중학생이 부모님께 드릴 어버이날 감사 카드 문구를 쓰는 한국어 글쓰기 도우미다.",
   "결과 본문 두 문장만 출력한다.",
   "생각 과정은 내부에서만 처리하고 절대 출력하지 않는다.",
-  "제목, 설명, 목록, JSON, 영어, 작성 과정, Thinking Process는 절대 출력하지 않는다.",
+  "제목, 설명, 목록, JSON, 영어, 작성 과정, 규칙 설명, Thinking Process는 절대 출력하지 않는다.",
   "두 문장 모두 부모님께 직접 말하는 존댓말 편지체로 쓴다."
 ].join(" ");
 
@@ -47,14 +52,14 @@ export function buildClientCardPrompt(input) {
     "",
     "규칙:",
     "1. 정확히 두 문장만 쓴다.",
-    "2. 첫 문장은 '엄마 아빠,' 또는 '부모님,'으로 시작한다.",
+    "2. 첫 문장은 부모님을 직접 부르는 호칭으로 시작한다. 호칭은 엄마 아빠 또는 부모님 중 하나만 고른다.",
     "3. 두 문장 모두 '-요', '-게요', '-습니다' 같은 존댓말로 끝낸다.",
     "4. 설명문처럼 쓰지 말고 실제 편지처럼 쓴다.",
     "5. '물들인다', '살겠다', '존재다' 같은 해설체 문장으로 끝내지 않는다.",
     "6. 재밌게 스타일이면 개그감 있는 비유를 반드시 넣는다.",
     "7. 귀엽게 스타일이면 말랑하고 통통 튀는 표현을 반드시 넣는다.",
     "8. 학생 이름이나 학번은 문구에 넣지 않는다.",
-    "9. 답변은 한국어 카드 문구 두 문장으로 바로 시작한다."
+    "9. 답변은 규칙 설명 없이 한국어 카드 문구 두 문장으로 바로 시작한다."
   ].join("\n");
 }
 
@@ -69,41 +74,86 @@ export function normalizeClientCardText(content) {
     .trim();
 
   const sentences = cleaned.match(/[^.!?。？！]+[.!?。？！]/g) || [cleaned];
-  return sentences
+  const result = sentences
     .map((sentence) => sentence.trim())
     .filter(Boolean)
     .slice(0, 2)
     .join(" ")
     .trim();
+
+  const cardText = rejectInstructionOnlyText(result);
+  if (!/^(엄마\s*아빠|부모님)[,，]/.test(cardText)) return "";
+  return cardText;
 }
 
 function sliceFromLastAddress(value) {
-  const candidates = ["엄마 아빠,", "엄마 아빠，", "부모님,", "부모님，"];
   const completionIndex = value.lastIndexOf("내부 처리 완료");
   if (completionIndex >= 0) {
-    const afterCompletion = value.slice(completionIndex);
-    const completionAddressIndexes = candidates
-      .map((candidate) => afterCompletion.indexOf(candidate))
-      .filter((index) => index >= 0);
-    if (completionAddressIndexes.length) {
-      return afterCompletion.slice(Math.min(...completionAddressIndexes));
-    }
+    const completionAddressIndex = findFirstCardAddress(value, completionIndex);
+    if (completionAddressIndex >= 0) return value.slice(completionAddressIndex);
   }
 
   const markerIndexes = ["최종 검토", "최종 답변", "문구 작성"]
     .map((marker) => value.lastIndexOf(marker))
     .filter((index) => index >= 0);
   const searchStart = markerIndexes.length ? Math.max(...markerIndexes) : 0;
-  const searchArea = value.slice(searchStart);
-  const indexes = candidates
-    .map((candidate) => searchArea.indexOf(candidate))
-    .filter((index) => index >= 0);
+  const markerAddressIndex = findFirstCardAddress(value, searchStart);
+  if (markerAddressIndex >= 0) return value.slice(markerAddressIndex);
 
-  if (indexes.length) return searchArea.slice(Math.min(...indexes));
+  const fallbackAddressIndex = findFirstCardAddress(value, 0);
+  if (fallbackAddressIndex < 0) return value;
+  return value.slice(fallbackAddressIndex);
+}
 
-  const fallbackIndexes = candidates
-    .map((candidate) => value.indexOf(candidate))
-    .filter((index) => index >= 0);
-  if (!fallbackIndexes.length) return value;
-  return value.slice(Math.min(...fallbackIndexes));
+function findFirstCardAddress(value, startIndex) {
+  const indexes = [];
+
+  for (const candidate of ADDRESS_CANDIDATES) {
+    let index = value.indexOf(candidate, startIndex);
+    while (index >= 0) {
+      if (!isInstructionAddressCandidate(value, index, candidate)) indexes.push(index);
+      index = value.indexOf(candidate, index + candidate.length);
+    }
+  }
+
+  if (!indexes.length) return -1;
+  return Math.min(...indexes);
+}
+
+function isInstructionAddressCandidate(value, index, candidate) {
+  const previousChar = value[index - 1] || "";
+  const nextChar = value[index + candidate.length] || "";
+  if (QUOTE_CHARS.has(previousChar) || QUOTE_CHARS.has(nextChar)) return true;
+
+  const segment = getSentenceSegment(value, index);
+  return INSTRUCTION_PATTERN.test(segment) && !CARD_INTENT_PATTERN.test(segment);
+}
+
+function getSentenceSegment(value, index) {
+  const before = value.slice(0, index);
+  const after = value.slice(index);
+  const previousBoundary = Math.max(
+    before.lastIndexOf("."),
+    before.lastIndexOf("!"),
+    before.lastIndexOf("?"),
+    before.lastIndexOf("。"),
+    before.lastIndexOf("！"),
+    before.lastIndexOf("？"),
+    before.lastIndexOf("\n")
+  );
+  const boundaryMatch = after.match(/[.!?。！？\n]/);
+  const nextBoundary = boundaryMatch ? index + boundaryMatch.index + 1 : value.length;
+  return value.slice(previousBoundary + 1, nextBoundary);
+}
+
+function rejectInstructionOnlyText(value) {
+  const text = String(value || "");
+  const instructionPatterns = [
+    /첫\s*문장/,
+    /존댓말\s*사용/,
+    /['"‘’“”]?\s*(엄마\s*아빠|부모님)[,，]['"‘’“”]?\s*(또는|으로\s*시작)/,
+    /-\s*요.*-\s*게요.*-\s*습니다/
+  ];
+
+  return instructionPatterns.some((pattern) => pattern.test(text)) ? "" : text;
 }

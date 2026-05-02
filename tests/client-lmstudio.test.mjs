@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { getClientAiConfig } from "../server/clientConfig.mjs";
+import { buildCardPrompt } from "../server/cardPrompt.mjs";
 import { requestLmStudioCard } from "../public/js/clientLmStudio.js";
-import { normalizeClientCardText } from "../public/js/letterPrompt.js";
+import { buildClientCardPrompt, normalizeClientCardText } from "../public/js/letterPrompt.js";
 
 const payload = {
   studentInfo: "1100 홍길동",
@@ -104,4 +105,43 @@ test("client card normalization starts after internal completion marker", () => 
     text,
     "부모님, 늘 저를 위해 밥도 차려주시고 따뜻한 사랑으로 감싸주시니 감사드려요. 부모님은 세상에서 가장 반짝이는 보석 같아서 제가 앞으로도 행복하게 살게요."
   );
+});
+
+test("client card normalization rejects rule-only address instructions", () => {
+  const text = normalizeClientCardText(
+    "첫 문장은 '엄마 아빠,' 또는 '부모님,'으로 시작. * 존댓말 사용 (-요, -게요, -습니다)."
+  );
+
+  assert.equal(text, "");
+});
+
+test("client card normalization ignores quoted rule addresses before final card", () => {
+  const text = normalizeClientCardText(
+    "첫 문장은 '엄마 아빠,' 또는 '부모님,'으로 시작. * 존댓말 사용 (-요, -게요, -습니다). 부모님, 늘 저를 챙겨 주셔서 정말 감사해요. 부모님, 오늘은 걱정은 잠시 내려놓고 편히 쉬셨으면 좋겠어요."
+  );
+
+  assert.equal(
+    text,
+    "부모님, 늘 저를 챙겨 주셔서 정말 감사해요. 부모님, 오늘은 걱정은 잠시 내려놓고 편히 쉬셨으면 좋겠어요."
+  );
+});
+
+test("client card normalization rejects analysis text without a direct address", () => {
+  const text = normalizeClientCardText(
+    "부모님께 드릴 어버이날 감사 카드 문구를 작성해야 한다. **요구사항 분석:** 1. 성향과 스타일을 확인한다."
+  );
+
+  assert.equal(text, "");
+});
+
+test("card prompts avoid quoted address examples that local models may echo", () => {
+  const prompts = [
+    buildClientCardPrompt(payload),
+    buildCardPrompt(payload)
+  ];
+
+  for (const prompt of prompts) {
+    assert.doesNotMatch(prompt, /['"]엄마 아빠[,，]['"]/);
+    assert.doesNotMatch(prompt, /['"]부모님[,，]['"]/);
+  }
 });
