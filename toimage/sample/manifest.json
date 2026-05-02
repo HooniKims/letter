@@ -8,9 +8,10 @@
     "printSizeMm": "99.1x33.9",
     "dpi": 300,
     "font": "Paperlogy",
+    "settings": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\card-settings.json",
     "mode": "imagegen-background",
     "sourceBackground": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\sample\\backgrounds\\imagegen-bg-01.png",
-    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: watercolor carnation bouquets on the left and right, scalloped cream sticker label in the center, tiny red hearts. Use the mood of a cute Korean Parents' Day card: watercolor carnations on both sides, cream central panel, hand-made sticker feeling, soft hearts, gentle ribbon details. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students."
+    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: minimal warm ivory sticker card, soft scalloped edge, clean center, small watercolor carnation bouquets at both side edges. Use the mood of the local sample.png reference: clean cream sticker card, soft scalloped edge, gentle carnations on the sides, modern minimal Korean stationery. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students; avoid ornate, vintage, old-fashioned, or busy illustration styles."
   },
   {
     "studentId": "1102",
@@ -21,9 +22,10 @@
     "printSizeMm": "99.1x33.9",
     "dpi": 300,
     "font": "Paperlogy",
+    "settings": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\card-settings.json",
     "mode": "imagegen-background",
     "sourceBackground": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\sample\\backgrounds\\imagegen-bg-02.png",
-    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: pale peach hanji paper backdrop with fine gold flecks, carnation garlands in opposite corners, coral ribbon accent. Use the mood of a cute Korean Parents' Day card: watercolor carnations on both sides, cream central panel, hand-made sticker feeling, soft hearts, gentle ribbon details. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students."
+    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: minimal cream rounded label, sparse carnations in opposite corners, thin coral ribbon stroke, very few petals and hearts. Use the mood of the local sample.png reference: clean cream sticker card, soft scalloped edge, gentle carnations on the sides, modern minimal Korean stationery. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students; avoid ornate, vintage, old-fashioned, or busy illustration styles."
   },
   {
     "studentId": "1103",
@@ -34,8 +36,9 @@
     "printSizeMm": "99.1x33.9",
     "dpi": 300,
     "font": "Paperlogy",
+    "settings": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\card-settings.json",
     "mode": "imagegen-background",
     "sourceBackground": "C:\\Users\\Administrator\\Desktop\\vibe_coding_progects\\2026_AI중점학교_사업\\1. 어버이날 편지쓰기\\toimage\\sample\\backgrounds\\imagegen-bg-03.png",
-    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: soft sky-blue and warm ivory paper, airy baby's-breath flowers, pink carnations at both far ends, small heart doodles. Use the mood of a cute Korean Parents' Day card: watercolor carnations on both sides, cream central panel, hand-made sticker feeling, soft hearts, gentle ribbon details. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students."
+    "sourcePrompt": "Create a full-bleed horizontal Korean Parents' Day greeting card background. Visual direction: airy ivory card with faint blush edge wash, one side bouquet and one refined carnation sprig, lots of negative space. Use the mood of the local sample.png reference: clean cream sticker card, soft scalloped edge, gentle carnations on the sides, modern minimal Korean stationery. No text, no letters, no numbers, no signature, no logo, no watermark. No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge. Leave a softly calm central area suitable for adding a two-sentence Korean message later. Keep the lower center area visually clean enough for a small student id and name footer. Use a refined, warm, family-friendly style for middle school students; avoid ornate, vintage, old-fashioned, or busy illustration styles."
   }
 ]

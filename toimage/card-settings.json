@@ -1,0 +1,61 @@
+{
+  "print": {
+    "widthMm": 99.1,
+    "heightMm": 33.9,
+    "dpi": 300
+  },
+  "paths": {
+    "inputCsv": "sample/sample-students.csv",
+    "outputDir": "sample",
+    "backgroundDir": "sample/backgrounds"
+  },
+  "font": {
+    "family": "Paperlogy",
+    "messageFile": "fonts/Paperlogy-6SemiBold.ttf",
+    "footerFile": "fonts/Paperlogy-6SemiBold.ttf"
+  },
+  "layout": {
+    "contentSafeMarginMm": {
+      "left": 4.0,
+      "right": 4.0
+    },
+    "messagePanel": {
+      "leftMm": 16.8,
+      "rightMm": 16.8,
+      "minHeightMm": 14.8,
+      "verticalOffsetMm": -0.3,
+      "cornerRadiusMm": 2.6,
+      "fillRgba": [255, 250, 242, 204],
+      "outlineRgba": [153, 72, 77, 38],
+      "shadowRgba": [92, 43, 42, 24]
+    },
+    "message": {
+      "maxWidthMm": 65.0,
+      "maxHeightMm": 15.2,
+      "maxLines": 3,
+      "fontMaxPx": 42,
+      "fontMinPx": 26,
+      "lineHeight": 1.42,
+      "fillRgba": [84, 38, 37, 255],
+      "strokeWidthPx": 1,
+      "strokeRgba": [255, 252, 245, 190]
+    },
+    "footer": {
+      "fontPx": 26,
+      "bottomMm": 4.0,
+      "paddingXmm": 2.0,
+      "paddingTopMm": 0.6,
+      "paddingBottomMm": 0.8,
+      "cornerRadiusMm": 1.7,
+      "fillRgba": [255, 255, 255, 202],
+      "outlineRgba": [150, 72, 76, 42],
+      "textRgba": [84, 38, 37, 255]
+    }
+  },
+  "koreanLineBreak": {
+    "preferSentenceBreaks": true,
+    "avoidSingleSyllableEdges": true,
+    "balanceLines": true,
+    "avoidLineStartPunctuation": true
+  }
+}

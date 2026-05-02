@@ -1,22 +1,28 @@
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-export const CARD_WIDTH_MM = 99.1;
-export const CARD_HEIGHT_MM = 33.9;
-export const CARD_DPI = 300;
+export const TOIMAGE_DIR = dirname(fileURLToPath(import.meta.url));
+export const SETTINGS_PATH = join(TOIMAGE_DIR, "card-settings.json");
+export const CARD_SETTINGS = JSON.parse(readFileSync(SETTINGS_PATH, "utf8"));
+export const CARD_WIDTH_MM = Number(CARD_SETTINGS.print.widthMm);
+export const CARD_HEIGHT_MM = Number(CARD_SETTINGS.print.heightMm);
+export const CARD_DPI = Number(CARD_SETTINGS.print.dpi);
 export const CARD_IMAGE_WIDTH = Math.round((CARD_WIDTH_MM / 25.4) * CARD_DPI);
 export const CARD_IMAGE_HEIGHT = Math.round((CARD_HEIGHT_MM / 25.4) * CARD_DPI);
 export const REQUIRED_ASPECT_RATIO = CARD_IMAGE_WIDTH / CARD_IMAGE_HEIGHT;
-export const DEFAULT_BACKGROUND_DIR = "toimage/sample/backgrounds";
+export const DEFAULT_INPUT_CSV = join(TOIMAGE_DIR, CARD_SETTINGS.paths.inputCsv);
+export const DEFAULT_OUTPUT_DIR = join(TOIMAGE_DIR, CARD_SETTINGS.paths.outputDir);
+export const DEFAULT_BACKGROUND_DIR = join(TOIMAGE_DIR, CARD_SETTINGS.paths.backgroundDir);
 
 const BACKGROUND_STYLES = [
-  "watercolor carnation bouquets on the left and right, scalloped cream sticker label in the center, tiny red hearts",
-  "pale peach hanji paper backdrop with fine gold flecks, carnation garlands in opposite corners, coral ribbon accent",
-  "soft sky-blue and warm ivory paper, airy baby's-breath flowers, pink carnations at both far ends, small heart doodles",
-  "pressed-flower stationery style, cream center label, layered paper-cut carnations, muted sage leaves, warm handmade texture",
-  "premium floral sticker card, coral and blush carnations framing the side edges, subtle ribbon flow near the bottom"
+  "minimal warm ivory sticker card, soft scalloped edge, clean center, small watercolor carnation bouquets at both side edges",
+  "minimal cream rounded label, sparse carnations in opposite corners, thin coral ribbon stroke, very few petals and hearts",
+  "airy ivory card with faint blush edge wash, one side bouquet and one refined carnation sprig, lots of negative space",
+  "simple Korean stationery sticker style, pale cream center, delicate side carnations, muted green leaves, no dense pattern",
+  "modern minimal floral card, two light carnation clusters near the edges, subtle shadow, calm blank center"
 ];
 
 export function parseCsv(text) {
@@ -80,12 +86,12 @@ export function buildCardBackgroundPrompt(row, index = 0) {
   return [
     "Create a full-bleed horizontal Korean Parents' Day greeting card background.",
     `Visual direction: ${style}.`,
-    "Use the mood of a cute Korean Parents' Day card: watercolor carnations on both sides, cream central panel, hand-made sticker feeling, soft hearts, gentle ribbon details.",
+    "Use the mood of the local sample.png reference: clean cream sticker card, soft scalloped edge, gentle carnations on the sides, modern minimal Korean stationery.",
     "No text, no letters, no numbers, no signature, no logo, no watermark.",
     "No border, no frame, no outer margin; artwork must fill the entire canvas edge to edge.",
     "Leave a softly calm central area suitable for adding a two-sentence Korean message later.",
     "Keep the lower center area visually clean enough for a small student id and name footer.",
-    "Use a refined, warm, family-friendly style for middle school students."
+    "Use a refined, warm, family-friendly style for middle school students; avoid ornate, vintage, old-fashioned, or busy illustration styles."
   ].join(" ");
 }
 
@@ -105,8 +111,8 @@ export async function readStudentCsv(inputPath) {
 }
 
 export async function generateCards(options = {}) {
-  const inputPath = resolve(options.input || "toimage/sample/sample-students.csv");
-  const outputDir = resolve(options.out || "toimage/sample");
+  const inputPath = resolve(options.input || DEFAULT_INPUT_CSV);
+  const outputDir = resolve(options.out || DEFAULT_OUTPUT_DIR);
   const backgroundDir = resolve(options.backgroundDir || DEFAULT_BACKGROUND_DIR);
   const limit = Number(options.limit || 3);
   const backgroundFiles = options.localPreview ? [] : await readBackgroundFiles(backgroundDir);
@@ -148,7 +154,8 @@ export async function generateCards(options = {}) {
       sizePx: `${CARD_IMAGE_WIDTH}x${CARD_IMAGE_HEIGHT}`,
       printSizeMm: `${CARD_WIDTH_MM}x${CARD_HEIGHT_MM}`,
       dpi: CARD_DPI,
-      font: "Paperlogy",
+      font: CARD_SETTINGS.font.family,
+      settings: SETTINGS_PATH,
       mode: options.localPreview ? "local-preview" : "imagegen-background",
       sourceBackground: options.localPreview ? undefined : backgroundPath,
       sourcePrompt: prompt
