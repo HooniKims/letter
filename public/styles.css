@@ -447,6 +447,45 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.flash-message {
+  position: fixed;
+  top: 76px;
+  left: 50%;
+  z-index: 1100;
+  width: min(calc(100% - 32px), 430px);
+  padding: 14px 18px;
+  color: #ffffff;
+  background: #ba1a1a;
+  border-radius: 14px;
+  box-shadow: 0 18px 42px rgba(25, 28, 29, 0.24);
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+  transform: translate(-50%, 0);
+  animation: flash-in 180ms ease-out;
+}
+
+.flash-message[data-tone="success"] {
+  background: #2f6f4f;
+}
+
+.flash-message[hidden] {
+  display: none;
+}
+
+@keyframes flash-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 @media (max-width: 680px) {
   .top-bar {
     align-items: flex-start;
@@ -462,5 +501,9 @@ textarea:focus {
   .generate-row,
   .submit-row {
     justify-content: stretch;
+  }
+
+  .flash-message {
+    top: 96px;
   }
 }

@@ -3,6 +3,7 @@ import { getState, setSelection } from "./state.js";
 
 let submitInProgress = false;
 let typingTimer = null;
+let flashTimer = null;
 const lockedControlStates = new Map();
 
 export function renderChoiceGroups() {
@@ -70,6 +71,25 @@ export function setStatus(message, tone = "") {
   status.dataset.tone = tone;
 }
 
+export function showFlashMessage(message, tone = "error") {
+  const flash = document.querySelector("[data-flash-message]");
+  if (!flash) return;
+
+  if (flashTimer) {
+    window.clearTimeout(flashTimer);
+    flashTimer = null;
+  }
+
+  flash.textContent = message;
+  flash.dataset.tone = tone;
+  flash.hidden = false;
+
+  flashTimer = window.setTimeout(() => {
+    flash.hidden = true;
+    flashTimer = null;
+  }, 2200);
+}
+
 export function setResult(text) {
   document.querySelector("#result").value = text;
   refreshSubmitAvailability();
@@ -92,14 +112,9 @@ export function refreshSubmitAvailability() {
   const button = document.querySelector("[data-submit]");
   if (!button) return;
 
-  const { selections, isGenerating } = getState();
-  const hasStudentId = Boolean(document.querySelector("#student-id")?.value.trim());
-  const hasStudentName = Boolean(document.querySelector("#student-name")?.value.trim());
-  const hasLetterText = Boolean(document.querySelector("#result")?.value.trim());
-  const hasEthicsAccepted = Boolean(document.querySelector("#ethics-accepted")?.checked);
-  const hasSteps = Boolean(selections.personality && selections.style && selections.message);
+  const { isGenerating } = getState();
 
-  button.disabled = submitInProgress || isGenerating || !(hasStudentId && hasStudentName && hasSteps && hasLetterText && hasEthicsAccepted);
+  button.disabled = submitInProgress || isGenerating;
 }
 
 function formatStudentInfo(studentId, studentName) {

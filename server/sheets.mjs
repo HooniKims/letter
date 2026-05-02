@@ -31,6 +31,9 @@ function validateSubmissionInput(input) {
   if (!student.id) {
     throw new Error("학번이 필요합니다.");
   }
+  if (!/^\d+$/.test(student.id)) {
+    throw new Error("학번은 숫자만 입력할 수 있습니다.");
+  }
   if (!student.name) {
     throw new Error("이름이 필요합니다.");
   }

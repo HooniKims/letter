@@ -32,7 +32,7 @@
           <div class="student-row">
             <div class="field-group">
               <label class="field-label" for="student-id">학번</label>
-              <input id="student-id" name="studentId" type="text" placeholder="예: 1100" inputmode="numeric" autocomplete="off" />
+              <input id="student-id" name="studentId" type="text" placeholder="예: 1100" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
             </div>
             <div class="field-group">
               <label class="field-label" for="student-name">이름</label>
@@ -109,5 +109,7 @@
         <span>저장이 끝날 때까지 잠시만 기다려 주세요.</span>
       </div>
     </div>
+
+    <div class="flash-message" data-flash-message hidden role="status" aria-live="assertive"></div>
   </body>
 </html>

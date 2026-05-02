@@ -47,3 +47,20 @@ test("Apps Script submission sends student id and student name as separate field
   assert.match(capturedBody.createdAt, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   assert.equal(result.backend, "apps-script");
 });
+
+test("submission rejects non-numeric student id", async () => {
+  await assert.rejects(
+    appendLetterSubmission({
+      studentId: "11A0",
+      studentName: "홍길동",
+      letterText: "부모님, 늘 감사해요.",
+      ethicsAccepted: true,
+      personality: "부지런한",
+      style: "재밌게",
+      message: "키워주신 은혜 감사"
+    }, {
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec"
+    }),
+    /학번은 숫자만 입력할 수 있습니다/
+  );
+});

@@ -1,6 +1,7 @@
 import { generateCard, submitLetter } from "./api.js";
+import { getMissingSubmitMessage, sanitizeStudentId } from "./formValidation.js";
 import { setGenerating } from "./state.js";
-import { readFormPayload, readSubmitPayload, refreshSubmitAvailability, renderChoiceGroups, setGenerationLoading, setGeneratingUi, setResult, setStatus, setSubmittingUi } from "./ui.js";
+import { readFormPayload, readSubmitPayload, refreshSubmitAvailability, renderChoiceGroups, setGenerationLoading, setGeneratingUi, setResult, setStatus, setSubmittingUi, showFlashMessage } from "./ui.js";
 
 renderChoiceGroups();
 refreshSubmitAvailability();
@@ -9,7 +10,13 @@ document.querySelector("[data-reset]").addEventListener("click", () => {
   window.location.reload();
 });
 
-document.querySelector("#student-id").addEventListener("input", refreshSubmitAvailability);
+document.querySelector("#student-id").addEventListener("input", (event) => {
+  const sanitizedValue = sanitizeStudentId(event.target.value);
+  if (event.target.value !== sanitizedValue) {
+    event.target.value = sanitizedValue;
+  }
+  refreshSubmitAvailability();
+});
 document.querySelector("#student-name").addEventListener("input", refreshSubmitAvailability);
 document.querySelector("#ethics-accepted").addEventListener("change", refreshSubmitAvailability);
 document.querySelector("#result").addEventListener("input", refreshSubmitAvailability);
@@ -17,12 +24,12 @@ document.querySelector("#result").addEventListener("input", refreshSubmitAvailab
 document.querySelector("[data-generate]").addEventListener("click", async () => {
   const payload = readFormPayload();
   if (!payload.studentId) {
-    setStatus("학번을 먼저 입력해 주세요.", "error");
+    showMissingMessage("학번을 입력해 주세요.");
     document.querySelector("#student-id").focus();
     return;
   }
   if (!payload.studentName) {
-    setStatus("이름을 먼저 입력해 주세요.", "error");
+    showMissingMessage("이름을 입력해 주세요.");
     document.querySelector("#student-name").focus();
     return;
   }
@@ -51,30 +58,10 @@ document.querySelector("[data-generate]").addEventListener("click", async () => 
 
 document.querySelector("[data-submit]").addEventListener("click", async () => {
   const payload = readSubmitPayload();
-  if (!payload.studentId) {
-    setStatus("학번을 먼저 입력해 주세요.", "error");
-    document.querySelector("#student-id").focus();
-    return;
-  }
-  if (!payload.studentName) {
-    setStatus("이름을 먼저 입력해 주세요.", "error");
-    document.querySelector("#student-name").focus();
-    return;
-  }
-
-  if (!payload.personality || !payload.style || !payload.message) {
-    setStatus("Step 1, 2, 3을 모두 선택해 주세요.", "error");
-    return;
-  }
-
-  if (!payload.letterText) {
-    setStatus("먼저 AI 감사 카드 문구를 생성해 주세요.", "error");
-    return;
-  }
-
-  if (!payload.ethicsAccepted) {
-    setStatus("생성형 AI 윤리 확인에 체크해야 최종 저장할 수 있습니다.", "error");
-    document.querySelector("#ethics-accepted").focus();
+  const missingMessage = getMissingSubmitMessage(payload);
+  if (missingMessage) {
+    showMissingMessage(missingMessage);
+    focusFirstMissingControl(payload);
     return;
   }
 
@@ -95,4 +82,27 @@ function formatProviderName(provider) {
   if (provider === "openai") return "OpenAI";
   if (provider === "lmstudio" || provider === "lmstudio-browser") return "LM Studio";
   return "AI";
+}
+
+function showMissingMessage(message) {
+  setStatus(message, "error");
+  showFlashMessage(message, "error");
+}
+
+function focusFirstMissingControl(payload) {
+  if (!payload.studentId) {
+    document.querySelector("#student-id").focus();
+    return;
+  }
+  if (!payload.studentName) {
+    document.querySelector("#student-name").focus();
+    return;
+  }
+  if (!payload.letterText) {
+    document.querySelector("#result").focus();
+    return;
+  }
+  if (!payload.ethicsAccepted) {
+    document.querySelector("#ethics-accepted").focus();
+  }
 }

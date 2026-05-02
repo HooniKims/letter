@@ -21,6 +21,7 @@ function doPost(e) {
     const createdAt = String(payload.createdAt || formatKoreanTimestamp_(new Date()));
 
     if (!student.id) throw new Error('학번이 필요합니다.');
+    if (!/^\d+$/.test(student.id)) throw new Error('학번은 숫자만 입력할 수 있습니다.');
     if (!student.name) throw new Error('이름이 필요합니다.');
     if (!letterText) throw new Error('저장할 편지 내용이 필요합니다.');
 
