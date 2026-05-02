@@ -20,20 +20,34 @@ npm start
 
 Netlify는 `netlify.toml` 설정에 따라 `public/` 폴더를 배포합니다. `/api/generate`, `/api/submit` 요청은 Netlify Functions로 연결됩니다.
 
-Netlify 클라우드는 로컬 PC의 LM Studio `localhost`에 접근할 수 없으므로, Netlify 환경에서는 기본 생성 경로가 OpenAI로 동작합니다. Netlify Site settings의 Environment variables에 최소한 다음 값을 등록합니다.
+Netlify 클라우드는 로컬 PC의 `.env` 파일을 읽지 않으므로, Netlify Site settings의 Environment variables에 필요한 값을 직접 등록합니다.
+
+LM Studio를 Netlify에서도 우선 사용하려면 `LMSTUDIO_API_URL`이 Netlify 서버에서 접근 가능한 외부 주소여야 합니다. `http://localhost:1234`는 Netlify 서버 자기 자신을 뜻하므로 사용할 수 없습니다.
 
 ```text
+DEFAULT_AI_PROVIDER
+LMSTUDIO_API_URL
+LMSTUDIO_API_KEY
+LMSTUDIO_GEMMA_E2B_MODEL
+LMSTUDIO_TIMEOUT_MS
+LMSTUDIO_ENABLE_THINKING
 OPENAI_API_KEY
 OPENAI_FALLBACK_MODEL
 GOOGLE_APPS_SCRIPT_WEB_APP_URL
 ```
 
-외부에서 접근 가능한 LM Studio 서버를 따로 운영한다면 `DEFAULT_AI_PROVIDER=lmstudio`와 `LMSTUDIO_API_URL`을 Netlify 환경변수에 추가해 LM Studio 우선으로 바꿀 수 있습니다.
+`LMSTUDIO_API_URL`이 등록되어 있으면 Netlify에서도 LM Studio를 우선 사용합니다. LM Studio가 실패하면 OpenAI `gpt-5-nano` fallback을 사용합니다.
 
 ### Netlify 필수 환경변수
 
 | 이름 | 값 |
 | --- | --- |
+| `DEFAULT_AI_PROVIDER` | `lmstudio` |
+| `LMSTUDIO_API_URL` | 기존 `.env`의 LM Studio API URL. 단, Netlify에서 접근 가능한 외부 주소여야 함 |
+| `LMSTUDIO_API_KEY` | 기존 `.env`의 LM Studio API 키 |
+| `LMSTUDIO_GEMMA_E2B_MODEL` | `google/gemma-4-e2b` |
+| `LMSTUDIO_TIMEOUT_MS` | `15000` |
+| `LMSTUDIO_ENABLE_THINKING` | `false` |
 | `OPENAI_API_KEY` | 기존 `.env`의 OpenAI API 키 |
 | `OPENAI_FALLBACK_MODEL` | `gpt-5-nano` |
 | `GOOGLE_APPS_SCRIPT_WEB_APP_URL` | Apps Script 웹앱 `/exec` URL |
@@ -42,7 +56,6 @@ GOOGLE_APPS_SCRIPT_WEB_APP_URL
 
 | 이름 | 값 |
 | --- | --- |
-| `DEFAULT_AI_PROVIDER` | 비워두면 Netlify에서는 자동으로 `openai` 사용 |
 | `GOOGLE_SHEETS_SPREADSHEET_ID` | Apps Script만 쓰면 없어도 됨 |
 | `GOOGLE_SHEETS_RANGE` | 필요하면 `A:C` |
 
@@ -53,7 +66,7 @@ GOOGLE_APPS_SCRIPT_WEB_APP_URL
 ```text
 DEFAULT_AI_PROVIDER=lmstudio
 LMSTUDIO_API_URL=http://localhost:1234/v1
-LMSTUDIO_API_KEY=lm-studio
+LMSTUDIO_API_KEY=
 LMSTUDIO_GEMMA_E2B_MODEL=google/gemma-4-e2b
 LMSTUDIO_TIMEOUT_MS=15000
 LMSTUDIO_ENABLE_THINKING=false

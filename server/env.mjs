@@ -49,7 +49,11 @@ export function getOpenAiConfig() {
 }
 
 export function getAiRoutingConfig() {
-  const fallbackProvider = process.env.NETLIFY ? "openai" : "lmstudio";
+  const fallbackProvider = process.env.LMSTUDIO_API_URL
+    ? "lmstudio"
+    : process.env.NETLIFY
+      ? "openai"
+      : "lmstudio";
   const provider = String(process.env.DEFAULT_AI_PROVIDER || fallbackProvider).trim().toLowerCase();
 
   return {
