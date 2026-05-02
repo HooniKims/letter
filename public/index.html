@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 감사 카드 쓰기</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/js/app.js"></script>
+  </head>
+  <body>
+    <header class="top-bar">
+      <strong>AI와 함께 어버이날 카드 만들기</strong>
+      <button class="reset-button" type="button" data-reset>처음으로</button>
+    </header>
+
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">Warm Heart AI</p>
+        <h1 id="page-title">AI 감사 카드 쓰기</h1>
+        <p>고른 마음을 바탕으로 부모님께 전할 짧은 감사 카드 두 문장을 만들어 줍니다.</p>
+      </section>
+
+      <section class="letter-card" aria-label="감사 카드 생성 입력">
+        <div class="step-block">
+          <div class="step-title">
+            <span aria-hidden="true">01</span>
+            <h2>Step 0: 누가 보내는 편지인가요?</h2>
+          </div>
+          <label class="field-label" for="student-info">학번과 이름</label>
+          <input id="student-info" name="studentInfo" type="text" placeholder="예: 1100 홍길동" autocomplete="off" />
+        </div>
+
+        <div class="step-block">
+          <div class="step-title">
+            <span aria-hidden="true">02</span>
+            <h2>Step 1: 부모님 성향</h2>
+          </div>
+          <div class="chip-list" data-choice-group="personality" aria-label="부모님 성향 선택"></div>
+        </div>
+
+        <div class="step-block">
+          <div class="step-title">
+            <span aria-hidden="true">03</span>
+            <h2>Step 2: 편지 말투/스타일</h2>
+          </div>
+          <div class="chip-list" data-choice-group="style" aria-label="편지 말투와 스타일 선택"></div>
+        </div>
+
+        <div class="step-block">
+          <div class="step-title">
+            <span aria-hidden="true">04</span>
+            <h2>Step 3: 전하고 싶은 진심</h2>
+          </div>
+          <div class="chip-list" data-choice-group="message" aria-label="전하고 싶은 진심 선택"></div>
+        </div>
+
+        <div class="generate-row">
+          <button class="primary-button" type="button" data-generate>
+            <span aria-hidden="true">✦</span>
+            생성하기
+          </button>
+        </div>
+
+        <section class="result-panel" aria-live="polite">
+          <div>
+            <p class="result-label">AI가 만든 감사 카드</p>
+            <p class="result-help">생성된 두 문장을 참고하고, 필요하면 직접 고쳐서 나만의 카드로 완성해보세요.</p>
+          </div>
+          <div
+            class="generation-loading"
+            data-generation-loading
+            data-loading-message="부모님께 전하는 감사한 마음을 만들고 있습니다."
+            hidden
+          >
+            부모님께 전하는 감사한 마음을 만들고 있습니다.
+          </div>
+          <textarea id="result" placeholder="생성하기를 누르면 이곳에 감사 카드 문구가 표시됩니다. 생성 후 직접 수정할 수 있습니다."></textarea>
+          <label class="ethics-check" for="ethics-accepted">
+            <input id="ethics-accepted" type="checkbox" checked />
+            <span>AI에게 도움을 받지만, 최종 생각은 항상 여러분이 하는 모습이 아름답습니다.</span>
+          </label>
+          <div class="submit-row">
+            <button class="primary-button submit-button" type="button" data-submit>
+              <span aria-hidden="true">✓</span>
+              최종 완성하기
+            </button>
+          </div>
+          <p class="status-message" data-status></p>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">© 2026 등촌중학교 과학정보부</footer>
+
+    <div class="saving-lock" data-saving-lock hidden role="status" aria-live="assertive">
+      <div class="saving-lock-panel">
+        <p>구글 시트에 저장 중입니다.</p>
+        <span>저장이 끝날 때까지 잠시만 기다려 주세요.</span>
+      </div>
+    </div>
+  </body>
+</html>

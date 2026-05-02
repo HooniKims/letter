@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+npm-debug.log*
+
+server.out.log
+server.err.log
+test-results/
+scripts/
+screen-current.png
+screen-final.png
+screen-with-submit.png
+
+.DS_Store
+Thumbs.db
