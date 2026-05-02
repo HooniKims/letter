@@ -23,7 +23,7 @@ function doPost(e) {
     if (!letterText) throw new Error('저장할 편지 내용이 필요합니다.');
 
     const lock = LockService.getScriptLock();
-    lock.waitLock(10000);
+    lock.waitLock(30000);
 
     try {
       const sheet = getTargetSheet_();
