@@ -1,4 +1,5 @@
 import { getAiRoutingConfig, getLmStudioConfig, getOpenAiConfig, getSheetsConfig } from "./env.mjs";
+import { formatNetworkError } from "./networkError.mjs";
 
 export function getRuntimeDiagnostics(origin = "http://localhost:5173") {
   const routing = getAiRoutingConfig();
@@ -85,7 +86,8 @@ async function probeLmStudio(config) {
     return {
       ok: false,
       errorName: error?.name || "Error",
-      message: error instanceof Error ? error.message : String(error)
+      message: error instanceof Error ? error.message : String(error),
+      detail: formatNetworkError(error)
     };
   } finally {
     clearTimeout(timeout);

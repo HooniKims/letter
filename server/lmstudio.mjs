@@ -1,9 +1,10 @@
 import { buildCardPrompt, CARD_INSTRUCTIONS, normalizeTwoSentences } from "./cardPrompt.mjs";
+import { formatNetworkError } from "./networkError.mjs";
 import { validateGenerationInput } from "./validation.mjs";
 
 export class LmStudioTimeoutError extends Error {
   constructor(timeoutMs) {
-    super(`LM Studio가 ${timeoutMs}ms 동안 카드 본문을 보내지 않아 OpenAI fallback을 사용했습니다.`);
+    super(`LM Studio did not send card text within ${timeoutMs}ms, so OpenAI fallback was used.`);
     this.name = "LmStudioTimeoutError";
   }
 }
@@ -48,19 +49,19 @@ export async function generateThankYouCardWithLmStudio(input, config) {
     if (error?.name === "AbortError") {
       throw new LmStudioTimeoutError(timeoutMs);
     }
-    throw error;
+    throw new Error(`LM Studio network error: ${formatNetworkError(error)}`);
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`LM Studio 요청 실패 (${response.status}) ${detail}`.trim());
+    throw new Error(`LM Studio request failed (${response.status}) ${detail}`.trim());
   }
 
   const content = await readStreamingChatCompletionText(response, controller, timeoutMs);
   if (!content || typeof content !== "string") {
-    throw new Error("LM Studio 응답에서 생성 문장을 찾지 못했습니다.");
+    throw new Error("LM Studio response did not include generated text.");
   }
 
   return normalizeTwoSentences(content, input);
@@ -68,10 +69,9 @@ export async function generateThankYouCardWithLmStudio(input, config) {
 
 function validateConfig(config) {
   if (!config?.apiUrl) {
-    throw new Error(".env에 LMSTUDIO_API_URL 값이 필요합니다.");
+    throw new Error("LMSTUDIO_API_URL is required.");
   }
 }
-
 
 function buildChatCompletionsUrl(apiUrl) {
   const trimmed = apiUrl.replace(/\/+$/, "");

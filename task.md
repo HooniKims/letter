@@ -375,3 +375,24 @@ Netlify에서만 OpenAI fallback이 되는 경우 우선 확인할 것:
 - `probe.lmStudio.configuredModelExists`가 `true`인지 확인한다.
 - 위 값이 모두 정상인데도 생성 결과가 `gpt-5-nano`이면 화면에 표시되는 `fallback 사유`를 확인한다.
 - 로컬 `/api/diagnostics` 결과는 Netlify 함수 런타임이 아니므로 Netlify 문제 판단에는 배포 URL에서 확인해야 한다.
+
+### Netlify fetch failed 원인 추적 보강
+
+확인된 현상:
+
+- 화면에 `fallback 사유: fetch failed`가 표시된다고 했다.
+- 이 메시지는 `DEFAULT_AI_PROVIDER`, 모델명, API key 존재 여부 문제가 아니라 Netlify 함수가 LM Studio URL로 네트워크 연결 자체를 만들지 못했을 때 나오는 증상이다.
+- LM Studio 서버가 401, 403, 404 등으로 응답했다면 `fetch failed`가 아니라 `LM Studio request failed (상태코드)` 형태로 나와야 한다.
+
+Nginx Proxy Manager 설정 관련 판단:
+
+- 사용자가 공유한 설정에서 `dcmsletter.netlify.app` Origin은 정규식상 허용된다.
+- `X-API-Key` 검사도 현재 앱이 보내는 헤더와 맞다.
+- 따라서 그 설정만 보면 CORS나 인증 설정이 직접 원인이라고 보기는 어렵다.
+- 다만 API key가 대화에 노출되었으므로 운영 전 교체하는 것이 안전하다.
+
+수정:
+
+- `server/networkError.mjs`를 추가해 Node fetch의 숨겨진 `cause.code`, `syscall`, `hostname`, `address`, `port` 등을 표시한다.
+- LM Studio 연결 실패 시 fallback 사유가 단순 `fetch failed`가 아니라 `LM Studio network error: TypeError: fetch failed: cause(code=...)`처럼 더 구체적으로 보이게 했다.
+- `/api/diagnostics?probe=lmstudio`도 네트워크 실패 세부 정보를 `detail`에 표시한다.
