@@ -396,3 +396,24 @@ Nginx Proxy Manager 설정 관련 판단:
 - `server/networkError.mjs`를 추가해 Node fetch의 숨겨진 `cause.code`, `syscall`, `hostname`, `address`, `port` 등을 표시한다.
 - LM Studio 연결 실패 시 fallback 사유가 단순 `fetch failed`가 아니라 `LM Studio network error: TypeError: fetch failed: cause(code=...)`처럼 더 구체적으로 보이게 했다.
 - `/api/diagnostics?probe=lmstudio`도 네트워크 실패 세부 정보를 `detail`에 표시한다.
+
+### Netlify 연결 timeout 확인
+
+추가 확인:
+
+- 브라우저 확장 프로그램 오류(`chrome-extension://...`)는 앱과 무관하다.
+- 실제 앱 오류는 `fallback 사유: LM Studio network error: TypeError: fetch failed: cause(code=UND_ERR_CONNECT_TIMEOUT)`이다.
+- `UND_ERR_CONNECT_TIMEOUT`은 Netlify 함수 서버가 `lm.alluser.site`에 TCP/TLS 연결을 열지 못했다는 뜻이다.
+- CORS, API key, 모델명 문제라면 연결 timeout이 아니라 401, 403, 404 같은 HTTP 상태 코드가 표시되어야 한다.
+- Netlify 배포 URL에서 `/api/diagnostics?probe=lmstudio`를 직접 호출했을 때도 LM Studio probe가 실패했다.
+
+판단:
+
+- 앱 코드와 Netlify 환경변수는 LM Studio 우선으로 잡혀 있다.
+- 로컬에서는 같은 URL, 같은 Origin, 같은 key로 `/v1/models`와 `/v1/chat/completions`가 정상 동작한다.
+- 따라서 남은 원인은 Netlify 함수 실행 서버에서 `58.148.64.77:443` 또는 `lm.alluser.site:443`까지 도달하지 못하는 네트워크/방화벽/공유기/NPM 노출 문제다.
+
+수정:
+
+- probe 자체 timeout이 먼저 발생해 원인을 가리는 문제를 줄이기 위해 probe timeout을 `LMSTUDIO_TIMEOUT_MS + 5000ms`, 최소 `20000ms`로 늘렸다.
+- probe 응답에 `targetHost`, `timeoutMs`도 표시되도록 했다.

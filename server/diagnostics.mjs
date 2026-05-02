@@ -55,8 +55,9 @@ async function probeLmStudio(config) {
     };
   }
 
+  const timeoutMs = Math.max(Number(config.timeoutMs || 10000) + 5000, 20000);
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(buildModelsUrl(config.apiUrl), {
@@ -79,6 +80,8 @@ async function probeLmStudio(config) {
       configuredModel: config.model,
       configuredModelExists: modelIds.includes(config.model),
       originHost: getHost(config.origin),
+      targetHost: getHost(config.apiUrl),
+      timeoutMs,
       modelIds,
       bodyPreview: sanitizePreview(body)
     };
@@ -87,6 +90,8 @@ async function probeLmStudio(config) {
       ok: false,
       errorName: error?.name || "Error",
       message: error instanceof Error ? error.message : String(error),
+      targetHost: getHost(config.apiUrl),
+      timeoutMs,
       detail: formatNetworkError(error)
     };
   } finally {
