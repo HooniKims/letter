@@ -302,11 +302,12 @@ function buildFallbackOpeningSentence(input) {
 function getFallbackOpeningOptions(input) {
   if (input.style === "재밌게") {
     const phrase = getFunnyPersonalityPhrase(input.personality);
+    const rolePhrase = withRoleParticle(phrase);
     return [
-      `엄마 아빠, 부모님은 우리 집 ${phrase}라 제 마음을 금방 웃게 해 주세요.`,
-      `엄마 아빠, 부모님은 우리 집 ${phrase}라 제 하루를 웃음으로 충전해 주세요.`,
-      `엄마 아빠, 부모님은 우리 집 ${phrase}라 힘든 날도 금방 밝아져요.`,
-      `엄마 아빠, 부모님은 우리 집 ${phrase}라 제 걱정도 금방 정리돼요.`
+      `엄마 아빠, 부모님은 우리 집 ${rolePhrase} 제 마음을 금방 웃게 해 주세요.`,
+      `엄마 아빠, 부모님은 우리 집 ${rolePhrase} 제 하루를 웃음으로 충전해 주세요.`,
+      `엄마 아빠, 부모님은 우리 집 ${rolePhrase} 힘든 날도 금방 밝아져요.`,
+      `엄마 아빠, 부모님은 우리 집 ${rolePhrase} 제 걱정도 금방 정리돼요.`
     ];
   }
 
@@ -458,6 +459,18 @@ function matchesRequiredContext(sentence, input, index) {
 
 function pick(index, values) {
   return values[index % values.length];
+}
+
+function withRoleParticle(phrase) {
+  return `${phrase}${hasFinalConsonant(phrase) ? "이라" : "라"}`;
+}
+
+function hasFinalConsonant(value) {
+  const match = String(value).match(/[가-힣](?!.*[가-힣])/);
+  if (!match) return false;
+
+  const code = match[0].charCodeAt(0);
+  return (code - 0xac00) % 28 !== 0;
 }
 
 const REQUIRED_STYLE_MARKERS = {
