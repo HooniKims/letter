@@ -17,7 +17,7 @@ test("client config exposes browser LM Studio settings from NEXT_PUBLIC key", ()
   const config = getClientAiConfig({
     env: {
       DEFAULT_AI_PROVIDER: "lmstudio",
-      LMSTUDIO_API_URL: "https://lm.alluser.site",
+      LMSTUDIO_API_URL: "https://lm.alluser.kr",
       NEXT_PUBLIC_LOCAL_LLM_API_KEY: "public-key",
       LMSTUDIO_GEMMA_E2B_MODEL: "google/gemma-4-e2b",
       LMSTUDIO_MAX_TOKENS: "700"
@@ -25,7 +25,7 @@ test("client config exposes browser LM Studio settings from NEXT_PUBLIC key", ()
   });
 
   assert.equal(config.routing.defaultProvider, "lmstudio");
-  assert.equal(config.lmStudio.endpoint, "https://lm.alluser.site/v1/chat/completions");
+  assert.equal(config.lmStudio.endpoint, "https://lm.alluser.kr/v1/chat/completions");
   assert.equal(config.lmStudio.apiKey, "public-key");
   assert.equal(config.lmStudio.model, "google/gemma-4-e2b");
   assert.equal(config.lmStudio.maxTokens, 700);
@@ -35,7 +35,7 @@ test("client config does not expose server-only LM Studio key", () => {
   const config = getClientAiConfig({
     env: {
       DEFAULT_AI_PROVIDER: "lmstudio",
-      LMSTUDIO_API_URL: "https://lm.alluser.site",
+      LMSTUDIO_API_URL: "https://lm.alluser.kr",
       LMSTUDIO_API_KEY: "server-only-key",
       LMSTUDIO_GEMMA_E2B_MODEL: "google/gemma-4-e2b"
     }
@@ -62,7 +62,7 @@ test("browser LM Studio request uses X-API-Key and non-streaming chat completion
   };
 
   const result = await requestLmStudioCard(payload, {
-    endpoint: "https://lm.alluser.site/v1/chat/completions",
+    endpoint: "https://lm.alluser.kr/v1/chat/completions",
     apiKey: "public-key",
     model: "google/gemma-4-e2b",
     temperature: 0.8,
@@ -70,7 +70,7 @@ test("browser LM Studio request uses X-API-Key and non-streaming chat completion
   }, fetchImpl);
 
   const requestBody = JSON.parse(capturedOptions.body);
-  assert.equal(capturedUrl, "https://lm.alluser.site/v1/chat/completions");
+  assert.equal(capturedUrl, "https://lm.alluser.kr/v1/chat/completions");
   assert.equal(capturedOptions.method, "POST");
   assert.equal(capturedOptions.headers["X-API-Key"], "public-key");
   assert.equal(capturedOptions.headers.Authorization, undefined);
