@@ -106,7 +106,7 @@ Netlify는 로컬 `.env` 파일을 자동으로 읽지 않는다. Netlify Site s
 
 ```text
 DEFAULT_AI_PROVIDER=lmstudio
-LMSTUDIO_API_URL=https://lm.alluser.site
+LMSTUDIO_API_URL=https://lm.alluser.kr
 LMSTUDIO_API_KEY=
 LMSTUDIO_GEMMA_E2B_MODEL=google/gemma-4-e2b
 LMSTUDIO_TIMEOUT_MS=15000
@@ -119,7 +119,7 @@ GOOGLE_APPS_SCRIPT_WEB_APP_URL=
 주의:
 
 - 실제 비밀키와 Apps Script URL은 이 파일에 기록하지 않는다.
-- `LMSTUDIO_API_URL`은 `https://lm.alluser.site`를 사용한다.
+- `LMSTUDIO_API_URL`은 `https://lm.alluser.kr`를 사용한다.
 - `http://localhost:1234`는 Netlify에서 사용할 수 없다.
 - `OPENAI_API_KEY`는 LM Studio 실패 시 fallback을 위해 필요하다.
 - `GOOGLE_APPS_SCRIPT_WEB_APP_URL`은 `/exec`로 끝나는 Apps Script 웹앱 URL을 넣는다.
@@ -237,7 +237,7 @@ https://github.com/HooniKims/letter.git
 - `.env`는 Git에 올리지 않는다.
 - Netlify에는 `.env` 대신 환경변수를 직접 등록한다.
 - Netlify 환경변수를 바꾼 뒤에는 반드시 Redeploy 한다.
-- LM Studio가 Netlify에서 동작하려면 `https://lm.alluser.site`가 Netlify 서버에서 접근 가능해야 한다.
+- LM Studio가 Netlify에서 동작하려면 `https://lm.alluser.kr`가 Netlify 서버에서 접근 가능해야 한다.
 - LM Studio가 실패해도 OpenAI fallback이 동작하려면 `OPENAI_API_KEY`가 Netlify에 있어야 한다.
 
 ## 현재 동작 기준
@@ -333,13 +333,13 @@ https://배포주소/api/diagnostics
 - `env.defaultAiProvider`가 `openai`로 남아 있지 않은지 확인
 - `env.hasLmStudioApiUrl`이 `true`인지 확인
 - `env.hasLmStudioApiKey`가 `true`인지 확인
-- `lmStudio.apiHost`가 `lm.alluser.site`인지 확인
+- `lmStudio.apiHost`가 `lm.alluser.kr`인지 확인
 
 ### LM Studio probe 및 fallback 사유 표시 추가
 
 문제:
 
-- `/api/diagnostics` 결과는 `defaultProvider=lmstudio`, `apiHost=lm.alluser.site`로 정상인데 실제 생성은 계속 OpenAI `gpt-5-nano`로 보인다고 했다.
+- `/api/diagnostics` 결과는 `defaultProvider=lmstudio`, `apiHost=lm.alluser.kr`로 정상인데 실제 생성은 계속 OpenAI `gpt-5-nano`로 보인다고 했다.
 - 이 경우 라우팅 문제가 아니라 LM Studio 요청 실패 후 fallback 되었을 가능성이 높다.
 
 수정:
@@ -367,7 +367,7 @@ https://배포주소/api/diagnostics?probe=lmstudio
 확인 결과:
 
 - 로컬 `.env`의 현재 모델명은 `google/gemma-4-e2b`이다.
-- `https://lm.alluser.site/v1/models`를 실제 생성과 같은 `Origin`, `Referer`, 인증 헤더로 호출하면 정상 응답한다.
+- `https://lm.alluser.kr/v1/models`를 실제 생성과 같은 `Origin`, `Referer`, 인증 헤더로 호출하면 정상 응답한다.
 - 응답 모델 목록에 `google/gemma-4-e2b`, `google/gemma-4-e4b`, `gemma-4-26b-a4b-it`가 포함되어 있다.
 - 따라서 현재 서버 기준으로 e2b 모델명은 `gemma4:e2b`가 아니라 `google/gemma-4-e2b`가 맞다.
 
@@ -414,7 +414,7 @@ Nginx Proxy Manager 설정 관련 판단:
 
 - 브라우저 확장 프로그램 오류(`chrome-extension://...`)는 앱과 무관하다.
 - 실제 앱 오류는 `fallback 사유: LM Studio network error: TypeError: fetch failed: cause(code=UND_ERR_CONNECT_TIMEOUT)`이다.
-- `UND_ERR_CONNECT_TIMEOUT`은 Netlify 함수 서버가 `lm.alluser.site`에 TCP/TLS 연결을 열지 못했다는 뜻이다.
+- `UND_ERR_CONNECT_TIMEOUT`은 Netlify 함수 서버가 `lm.alluser.kr`에 TCP/TLS 연결을 열지 못했다는 뜻이다.
 - CORS, API key, 모델명 문제라면 연결 timeout이 아니라 401, 403, 404 같은 HTTP 상태 코드가 표시되어야 한다.
 - Netlify 배포 URL에서 `/api/diagnostics?probe=lmstudio`를 직접 호출했을 때도 LM Studio probe가 실패했다.
 
@@ -422,7 +422,7 @@ Nginx Proxy Manager 설정 관련 판단:
 
 - 앱 코드와 Netlify 환경변수는 LM Studio 우선으로 잡혀 있다.
 - 로컬에서는 같은 URL, 같은 Origin, 같은 key로 `/v1/models`와 `/v1/chat/completions`가 정상 동작한다.
-- 따라서 남은 원인은 Netlify 함수 실행 서버에서 `58.148.64.77:443` 또는 `lm.alluser.site:443`까지 도달하지 못하는 네트워크/방화벽/공유기/NPM 노출 문제다.
+- 따라서 남은 원인은 Netlify 함수 실행 서버에서 `58.148.64.77:443` 또는 `lm.alluser.kr:443`까지 도달하지 못하는 네트워크/방화벽/공유기/NPM 노출 문제다.
 
 수정:
 
@@ -433,8 +433,8 @@ Nginx Proxy Manager 설정 관련 판단:
 
 참고한 정상 동작 구조:
 
-- 다른 프로젝트는 Netlify Function이나 서버 API route가 아니라 브라우저에서 `https://lm.alluser.site/v1/chat/completions`를 직접 호출한다.
-- 브라우저 직접 호출은 `Origin`, `Referer`가 자동으로 붙기 때문에 `lm.alluser.site`의 CORS/Origin 제한을 통과한다.
+- 다른 프로젝트는 Netlify Function이나 서버 API route가 아니라 브라우저에서 `https://lm.alluser.kr/v1/chat/completions`를 직접 호출한다.
+- 브라우저 직접 호출은 `Origin`, `Referer`가 자동으로 붙기 때문에 `lm.alluser.kr`의 CORS/Origin 제한을 통과한다.
 - 인증은 `Authorization`이 아니라 `X-API-Key`를 사용한다.
 - 실제 요청 모델명은 `google/gemma-4-e2b`이다.
 
@@ -467,7 +467,7 @@ Nginx Proxy Manager 설정 관련 판단:
 
 ```text
 DEFAULT_AI_PROVIDER=lmstudio
-LMSTUDIO_API_URL=https://lm.alluser.site
+LMSTUDIO_API_URL=https://lm.alluser.kr
 NEXT_PUBLIC_LOCAL_LLM_API_KEY
 LMSTUDIO_GEMMA_E2B_MODEL=google/gemma-4-e2b
 LMSTUDIO_MAX_TOKENS=700
